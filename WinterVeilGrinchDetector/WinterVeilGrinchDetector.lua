@@ -11,6 +11,7 @@ WinterVeilGrinchDetectorDB = WinterVeilGrinchDetectorDB or {}
 -- DB / utility
 -- ------------------------------------------------------------
 local function EnsureDB()
+  if WinterVeilGrinchDetectorDB.enabled == nil then WinterVeilGrinchDetectorDB.enabled = true end
   if type(WinterVeilGrinchDetectorDB) ~= "table" then WinterVeilGrinchDetectorDB = {} end
   if type(WinterVeilGrinchDetectorDB.completedByName) ~= "table" then WinterVeilGrinchDetectorDB.completedByName = {} end -- [nameShort] = timestamp
   if type(WinterVeilGrinchDetectorDB.completedByGuid) ~= "table" then WinterVeilGrinchDetectorDB.completedByGuid = {} end -- [guid] = nameShort
@@ -60,7 +61,13 @@ local function SortedKeys(t)
   return list
 end
 
--- ------------------------------------------------------------
+local function IsEnabled()
+  EnsureDB()
+  return WinterVeilGrinchDetectorDB.enabled == true
+end
+
+
+--------------------------------------------------------------
 -- Trade partner resolution (Classic trade frame quirks)
 -- ------------------------------------------------------------
 local function GetTradePartnerNameAndGuid()
@@ -310,6 +317,29 @@ SlashCmdList["WINTERVEILGRINCHDETECTOR"] = function(msg)
     return
   end
 
+  if msg == "on" then
+	  WinterVeilGrinchDetectorDB.enabled = true
+	  Print("Enabled: ON")
+	  return
+	end
+
+	if msg == "off" then
+	  WinterVeilGrinchDetectorDB.enabled = false
+	  Print("Enabled: OFF")
+	  return
+	end
+
+	if msg == "toggle" then
+	  WinterVeilGrinchDetectorDB.enabled = not WinterVeilGrinchDetectorDB.enabled
+	  Print("Enabled: " .. (WinterVeilGrinchDetectorDB.enabled and "ON" or "OFF"))
+	  return
+	end
+
+	if msg == "status" then
+	  Print("Enabled: " .. (IsEnabled() and "ON" or "OFF"))
+	  return
+end
+
   Print("Commands:")
   Print("/wvgd list")
   Print("/wvgd reset")
@@ -339,6 +369,15 @@ f:SetScript("OnEvent", function(self, event, ...)
     Print("Loaded. (/wvgd for commands)")
     return
   end
+  
+  -- If disabled, ignore all trade-related events.
+	if not IsEnabled() then
+	  -- Still allow slash commands (they aren't events here), and we already handled ADDON_LOADED above.
+	  if event ~= "ADDON_LOADED" then
+		return
+	  end
+	end
+
 
   if event == "TRADE_SHOW" then
     EnsureDB()
