@@ -1,6 +1,3 @@
--- WinterVeilGrinchDetector.lua
--- WoW Classic / Anniversary
--- Tracks COMPLETED trade partners and warns on repeat completed traders.
 
 local ADDON_NAME = ...
 local f = CreateFrame("Frame")
@@ -163,7 +160,7 @@ local function AnnounceLastDuplicate()
 end
 
 -- ------------------------------------------------------------
--- Trade session state (the stuff that was flaking before)
+-- Trade session state
 -- ------------------------------------------------------------
 local tradeId = 0
 local currentName, currentGuid = nil, nil
@@ -173,7 +170,7 @@ local acceptedByBoth = false
 local tradeCompleteSeen = false
 local recordedCompletedThisTrade = false
 
--- Cache partner identity at/after close in case the "trade complete" message arrives late.
+-- Cache identity at/after close in case the "trade complete" message arrives late.
 local lastClosed = nil
 
 local function ResolvePartnerNow()
@@ -398,6 +395,7 @@ f:SetScript("OnEvent", function(self, event, ...)
   end
 
   if event == "TRADE_PLAYER_ITEM_CHANGED" or event == "TRADE_TARGET_ITEM_CHANGED" then
+
     -- These often happen after recipient info becomes reliable.
     Debug(event)
     MaybeCheckDuplicateNow()
@@ -417,6 +415,7 @@ f:SetScript("OnEvent", function(self, event, ...)
     ResolvePartnerNow()
 
     if p and t then
+				
       -- Most reliable: record COMPLETED immediately when both accept.
       if not acceptedByBoth then Debug("Both accepted -> recording completed immediately") end
       acceptedByBoth = true
@@ -433,6 +432,8 @@ f:SetScript("OnEvent", function(self, event, ...)
       Debug("CHAT_MSG_SYSTEM saw trade complete")
       -- If close already happened and we didn't record, try from cache.
       TryRecordFromLateCompleteMessage()
+
+				
       -- If trade is still open and we didn't record yet, record now.
       if not recordedCompletedThisTrade then
         TryRecordCompleted("CHAT_MSG_SYSTEM(trade complete)")
