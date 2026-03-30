@@ -1,7 +1,7 @@
 ## Interface: 11508
 ## Title: WinterVeilGrinchDetector
-## Notes: Records completed trade partners and warns on repeat traders.
-## Author: Shifty
+## Notes: Records completed trade partners and warns on repeat traders during holiday giveaways.
+## Author: Some dude who plays WoW
 ## Version: 1.0.0
 ## SavedVariables: WinterVeilGrinchDetectorDB
 
